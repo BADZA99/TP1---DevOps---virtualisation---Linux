@@ -4,8 +4,17 @@
 
 # Variables
 TOMCAT_DIR="/opt/tomcat"
-WEBAPPS_DIR="${TOMCAT_DIR}/webapps"
 WAR_FILE="/vagrant/app/hello.war"
+
+if systemctl list-unit-files | grep -q '^tomcat9\.service'; then
+    TOMCAT_SERVICE="tomcat9"
+    WEBAPPS_DIR="/var/lib/tomcat9/webapps"
+    LOG_FILE="/var/log/tomcat9/catalina.out"
+else
+    TOMCAT_SERVICE="tomcat"
+    WEBAPPS_DIR="${TOMCAT_DIR}/webapps"
+    LOG_FILE="${TOMCAT_DIR}/logs/catalina.out"
+fi
 
 # Couleurs pour le menu
 RED='\033[0;31m'
@@ -34,30 +43,30 @@ afficher_menu() {
 # Fonction pour démarrer Tomcat
 demarrer_tomcat() {
     echo -e "${GREEN}Démarrage de Tomcat...${NC}"
-    sudo systemctl start tomcat
+    sudo systemctl start ${TOMCAT_SERVICE}
     sleep 2
-    sudo systemctl status tomcat --no-pager
+    sudo systemctl status ${TOMCAT_SERVICE} --no-pager
 }
 
 # Fonction pour arrêter Tomcat
 arreter_tomcat() {
     echo -e "${YELLOW}Arrêt de Tomcat...${NC}"
-    sudo systemctl stop tomcat
+    sudo systemctl stop ${TOMCAT_SERVICE}
     echo -e "${GREEN}Tomcat arrêté.${NC}"
 }
 
 # Fonction pour redémarrer Tomcat
 redemarrer_tomcat() {
     echo -e "${YELLOW}Redémarrage de Tomcat...${NC}"
-    sudo systemctl restart tomcat
+    sudo systemctl restart ${TOMCAT_SERVICE}
     sleep 2
-    sudo systemctl status tomcat --no-pager
+    sudo systemctl status ${TOMCAT_SERVICE} --no-pager
 }
 
 # Fonction pour voir le statut
 statut_tomcat() {
     echo -e "${GREEN}Statut de Tomcat:${NC}"
-    sudo systemctl status tomcat --no-pager
+    sudo systemctl status ${TOMCAT_SERVICE} --no-pager
 }
 
 # Fonction pour déployer l'application
@@ -72,7 +81,7 @@ deployer_app() {
     fi
     
     # Arrêter Tomcat
-    sudo systemctl stop tomcat
+    sudo systemctl stop ${TOMCAT_SERVICE}
     
     # Supprimer l'ancienne version
     sudo rm -rf ${WEBAPPS_DIR}/hello
@@ -80,10 +89,10 @@ deployer_app() {
     
     # Copier le nouveau WAR
     sudo cp ${WAR_FILE} ${WEBAPPS_DIR}/
-    sudo chown tomcat:tomcat ${WEBAPPS_DIR}/hello.war
+    sudo chown tomcat:tomcat ${WEBAPPS_DIR}/hello.war || true
     
     # Redémarrer Tomcat
-    sudo systemctl start tomcat
+    sudo systemctl start ${TOMCAT_SERVICE}
     
     echo -e "${GREEN}Application déployée!${NC}"
     echo "Accès: http://192.168.56.10:8080/hello/"
@@ -92,7 +101,7 @@ deployer_app() {
 # Fonction pour voir les logs
 voir_logs() {
     echo -e "${GREEN}Dernières lignes des logs Tomcat:${NC}"
-    sudo tail -50 ${TOMCAT_DIR}/logs/catalina.out
+    sudo tail -50 ${LOG_FILE}
 }
 
 # Boucle principale du menu

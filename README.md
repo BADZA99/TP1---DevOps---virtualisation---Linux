@@ -137,6 +137,17 @@ Le script `deploy.sh` propose un menu interactif avec les options:
 - [ ] Tomcat actif (`systemctl status tomcat`)
 - [ ] Application accessible sur http://localhost:8080/hello/
 
+## Captures
+
+### Démarrage Tomcat via menu
+![Démarrer Tomcat via menu](captures/demarrer-tomcat-via-menu.png)
+
+### Déploiement application
+![Déploiement application](captures/deploiement-application.png)
+
+### Résultat déploiement réussi
+![Résultat déploiement succès](captures/page-deploiement-succes.png)
+
 ## Auteur
 
 Étudiant M2 Génie Logiciel - Cours DevOps
